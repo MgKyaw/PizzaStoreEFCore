@@ -27,5 +27,6 @@ if(app.Environment.IsDevelopment())
 }
 
 app.MapGet("/", () => "Hello World!");
+app.MapGet("/pizzas", async (PizzaDb db) => db.Pizzas.ToListAsync());
 
 app.Run();
