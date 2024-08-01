@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo() {
+    c.SwaggerDoc("v1", new OpenApiInfo()
+    {
         Title = "PizzaStore API",
         Description = "Making the pizzas you love",
         Version = "v1"
@@ -18,10 +19,10 @@ builder.Services.AddDbContext<PizzaDb>(options => options.UseInMemoryDatabase("i
 
 var app = builder.Build();
 
-if(app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => 
+    app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "PizzaStore API v1");
     });
@@ -35,6 +36,15 @@ app.MapPost("/pizza", async (PizzaDb db, Pizza pizza) =>
     await db.Pizzas.AddAsync(pizza);
     await db.SaveChangesAsync();
     return Results.Created($"/pizza/{pizza.Id}", pizza);
+});
+app.MapPut("/pizza/{id}", async (PizzaDb db, Pizza updatePizza, int id) =>
+{
+    var pizza = await db.Pizzas.FindAsync(id);
+    if (pizza is null) return Results.NotFound();
+    pizza.Name = updatePizza.Name;
+    pizza.Description = updatePizza.Description;
+    await db.SaveChangesAsync();
+    return Results.NoContent();
 });
 
 app.Run();
